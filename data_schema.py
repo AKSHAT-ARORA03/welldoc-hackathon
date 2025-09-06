@@ -28,17 +28,12 @@ def preprocess_chronic_data(df: pd.DataFrame) -> pd.DataFrame:
     Returns:
         Preprocessed DataFrame
     """
-    # Make a copy to avoid modifying the original
     df_processed = df.copy()
-    
-    # Convert categorical features to numerical using one-hot encoding
     categorical_cols = ['Gender', 'Smoking', 'Alcohol', 'Exercise_Freq', 'Medication_Adherence']
-    
     for col in categorical_cols:
         if col in df_processed.columns:
             df_processed = pd.get_dummies(df_processed, columns=[col], drop_first=False)
     
-    # Create a numeric medication adherence column
     if 'Medication_Adherence' not in df_processed.columns and any(col.startswith('Medication_Adherence_') for col in df_processed.columns):
         # Create med_adherence from one-hot encoded columns
         if 'Medication_Adherence_High' in df_processed.columns:
@@ -49,8 +44,6 @@ def preprocess_chronic_data(df: pd.DataFrame) -> pd.DataFrame:
             )
         else:
             df_processed['med_adherence'] = 0.7  # Default value if columns not found
-    
-    # Rename columns to match expected format in the model
     column_mapping = {
         'Systolic_BP': 'systolic_bp',
         'Diastolic_BP': 'diastolic_bp',
@@ -71,33 +64,21 @@ def preprocess_chronic_data(df: pd.DataFrame) -> pd.DataFrame:
         'Platelets': 'platelets',
         'Hospitalization_PastYear': 'hospitalizations'
     }
-    
-    # Apply column renaming where the columns exist
     for old_name, new_name in column_mapping.items():
         if old_name in df_processed.columns:
             df_processed.rename(columns={old_name: new_name}, inplace=True)
-    
-    # Add date column (use current date)
     current_date = pd.Timestamp.now().strftime('%Y-%m-%d')
     df_processed['date'] = current_date
-    
-    # Rename Patient_ID to patient_id for consistency
     if 'Patient_ID' in df_processed.columns:
         df_processed.rename(columns={'Patient_ID': 'patient_id'}, inplace=True)
-    
-    # Rename Risk_Label to deterioration_90d for consistency with original code
     if 'Risk_Label' in df_processed.columns:
         df_processed.rename(columns={'Risk_Label': 'deterioration_90d'}, inplace=True)
-    
-    # Handle missing values - avoid the pandas warning by using a copy
     numeric_cols = df_processed.select_dtypes(include=[np.number]).columns.tolist()
     for col in numeric_cols:
         if col in df_processed.columns:
             # Use direct assignment instead of inplace method
             median_value = df_processed[col].median()
             df_processed[col] = df_processed[col].fillna(median_value)
-    
-    # Add steps and sleep hours if they don't exist (synthetic values)
     if 'steps' not in df_processed.columns:
         df_processed['steps'] = np.random.randint(1000, 10000, size=len(df_processed))
     
@@ -105,16 +86,12 @@ def preprocess_chronic_data(df: pd.DataFrame) -> pd.DataFrame:
         df_processed['sleep_hours'] = np.random.uniform(4, 9, size=len(df_processed))
     
     return df_processed
-
-# Keep the original functions for backward compatibility
 def generate_synthetic_data(num_patients=100, num_days=30):
     """Generate synthetic patient data for testing"""
-    # ...existing code...
     pass
 
 def load_patient_data(file_path):
     """Load patient data from CSV file"""
-    # ...existing code...
     return load_chronic_data(file_path)
 
 def preprocess_data(df):
