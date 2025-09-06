@@ -8,18 +8,6 @@ from pathlib import Path
 
 class ModelExplainer:
     def __init__(self, model, X_train, feature_names=None):
-        """
-        Initialize the explainer with a trained model and training data
-        
-        Parameters:
-        -----------
-        model : model object
-            The trained model to explain
-        X_train : pandas.DataFrame or numpy.ndarray
-            Training data used to build the explainer
-        feature_names : list, optional
-            List of feature names (required if X_train is not a pandas DataFrame)
-        """
         self.model = model
         self.feature_names = feature_names
         
@@ -88,18 +76,6 @@ class ModelExplainer:
         self._global_shap_data = None
 
     def get_global_explanations(self, X: Optional[pd.DataFrame] = None) -> Dict[str, float]:
-        """
-        Get global feature importance
-        
-        Parameters:
-        -----------
-        X : pandas.DataFrame, optional
-            Data to explain. If not provided, uses cached values from previous calls.
-        
-        Returns:
-        --------
-        Dictionary of feature importances sorted by importance
-        """
         # If X is provided or we don't have cached values, compute SHAP values
         if X is not None or self._global_shap_values is None:
             if X is not None:
@@ -127,18 +103,6 @@ class ModelExplainer:
         return sorted_features
     
     def get_local_explanation(self, X_row: pd.DataFrame) -> Dict[str, float]:
-        """
-        Get local explanation for a single instance
-        
-        Parameters:
-        -----------
-        X_row : pandas.DataFrame
-            Single row to explain
-        
-        Returns:
-        --------
-        Dictionary mapping features to their SHAP values
-        """
         # Ensure X_row is properly shaped for SHAP
         if isinstance(X_row, pd.DataFrame) or isinstance(X_row, pd.Series):
             if len(X_row) == 1:
@@ -184,24 +148,7 @@ class ModelExplainer:
         return result
 
     def get_top_factors(self, X_row: pd.DataFrame, top_n: int = 5) -> Dict[str, Dict[str, Any]]:
-        """
-        Get top factors contributing to the prediction for a specific instance
-        
-        Parameters:
-        -----------
-        X_row : pandas.DataFrame
-            Single row to explain
-        top_n : int
-            Number of top factors to return
-        
-        Returns:
-        --------
-        Dictionary of top factors with their impact and interpretation
-        """
         local_exp = self.get_local_explanation(X_row)
-        
-        # Sort by absolute value to get top factors
-        # Ensure we're comparing scalars by converting any numpy values to Python floats
         top_factors = sorted(
             local_exp.items(), 
             key=lambda x: abs(float(x[1])), 
@@ -235,16 +182,6 @@ class ModelExplainer:
         return results
 
     def plot_shap_summary(self, X: Optional[pd.DataFrame] = None, save_path: Optional[str] = None):
-        """
-        Plot SHAP summary plot
-        
-        Parameters:
-        -----------
-        X : pandas.DataFrame, optional
-            Data to explain. If not provided, uses cached values.
-        save_path : str, optional
-            Path to save the plot. If not provided, the plot is displayed.
-        """
         if X is not None:
             shap_values = self.explainer.shap_values(X)
             plot_data = X
@@ -269,20 +206,6 @@ class ModelExplainer:
     
     def plot_shap_dependence(self, feature: str, X: Optional[pd.DataFrame] = None, 
                              interaction_feature: Optional[str] = None, save_path: Optional[str] = None):
-        """
-        Plot SHAP dependence plot for a specific feature
-        
-        Parameters:
-        -----------
-        feature : str
-            Feature to plot
-        X : pandas.DataFrame, optional
-            Data to explain. If not provided, uses cached values.
-        interaction_feature : str, optional
-            Feature to use for coloring points
-        save_path : str, optional
-            Path to save the plot. If not provided, the plot is displayed.
-        """
         if X is not None:
             shap_values = self.explainer.shap_values(X)
             plot_data = X
@@ -316,22 +239,6 @@ class ModelExplainer:
     
     def generate_textual_explanation(self, X_row: pd.DataFrame, prediction_prob: float, 
                                      top_n: int = 3) -> Dict[str, Any]:
-        """
-        Generate a textual explanation of the prediction
-        
-        Parameters:
-        -----------
-        X_row : pandas.DataFrame
-            Single row to explain
-        prediction_prob : float
-            Predicted probability of the positive class
-        top_n : int
-            Number of top factors to include in the explanation
-        
-        Returns:
-        --------
-        Dictionary with explanation text and other information
-        """
         top_factors = self.get_top_factors(X_row, top_n=top_n)
         
         # Generate risk level text
@@ -415,31 +322,11 @@ class ModelExplainer:
         }
     
     def save(self, path: str) -> None:
-        """
-        Save the explainer object
-        
-        Parameters:
-        -----------
-        path : str
-            Path to save the explainer
-        """
         Path(path).parent.mkdir(parents=True, exist_ok=True)
         joblib.dump(self, path)
     
     @staticmethod
     def load(path: str) -> 'ModelExplainer':
-        """
-        Load a saved explainer object
-        
-        Parameters:
-        -----------
-        path : str
-            Path to the saved explainer
-            
-        Returns:
-        --------
-        ModelExplainer object
-        """
         return joblib.load(path)
 
 def get_global_explanations(model, X):
