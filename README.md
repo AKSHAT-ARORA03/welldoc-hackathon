@@ -174,9 +174,9 @@ We welcome contributions! Please follow these steps:
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ## 👥 Team & Acknowledgments
-**Developer**: [Aranyak Banerjee](https://github.com/AKSHAT-ARORA03)
+**Developer**: [Aranyak Banerjee](https://github.com/aranyak1010)
 **Developer**: [Daksh Ranka](https://github.com/Dakshranka)
-**Developer**: [Sneh Kumar Bhagat](https://github.com/AKSHAT-ARORA03)
+**Developer**: [Sneh Kumar Bhagat](https://github.com/snehbhagat)
 **Developer**: [Akshat Arora](https://github.com/AKSHAT-ARORA03)
 
 **Hackathon**: WellDoc Healthcare Innovation Challenge
